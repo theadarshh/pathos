@@ -1,0 +1,38 @@
+#universeSvg {
+  width: 100%;
+  height: 520px;
+}
+.node {
+  cursor: pointer;
+}
+.node circle {
+  transition: 0.3s;
+}
+.node text {
+  fill: var(--text);
+  font-size: 12px;
+  font-family: 'Space Grotesk';
+  pointer-events: none;
+}
+.node.dim {
+  opacity: 0.32;
+}
+.path-detail {
+  margin-top: 20px;
+}
+.path-detail-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.label-sm {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  #universeSvg {
+    height: 380px;
+  }
+}

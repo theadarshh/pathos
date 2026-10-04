@@ -1,0 +1,27 @@
+.role-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.cmp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.cmp-col h3 {
+  font-size: 16px;
+  margin: 0 0 14px;
+}
+.cmp-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.cmp-row small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  margin-bottom: 3px;
+}

@@ -1,0 +1,107 @@
+.path-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 420px;
+  margin: 10px auto;
+}
+.chain-node {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+}
+.chain-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  transition: 0.3s;
+}
+.chain-dot.done {
+  background: var(--ok);
+  border-color: var(--ok);
+}
+.chain-dot.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  box-shadow: 0 0 12px var(--blue);
+  animation: chainPulse 1.8s ease-in-out infinite;
+}
+@keyframes chainPulse {
+  0%, 100% { box-shadow: 0 0 8px var(--blue); }
+  50% { box-shadow: 0 0 16px var(--cyan); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chain-dot.active { animation: none; }
+}
+.chain-line {
+  width: 2px;
+  height: 26px;
+  background: var(--border);
+  margin-left: 6px;
+}
+.chain-line.done {
+  background: var(--ok);
+}
+.chain-label {
+  font-size: 15px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 0;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.chain-label.done {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.chain-target {
+  font-weight: 600;
+  cursor: default;
+}
+.chain-state {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.chain-state-known { color: var(--success); border-color: rgba(52, 211, 153, 0.35); }
+.chain-state-next { color: var(--blue2); border-color: rgba(91, 140, 255, 0.4); }
+.chain-state-later { color: var(--muted); }
+.chain-state-target { color: var(--violet); border-color: rgba(139, 92, 246, 0.4); }
+
+.chain-explain-wrap {
+  margin-left: 28px;
+  max-width: 340px;
+}
+.chain-explain-inner {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--t-normal) var(--ease-standard);
+  overflow: hidden;
+}
+.chain-explain-inner.open {
+  grid-template-rows: 1fr;
+}
+.chain-explain {
+  min-height: 0;
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 4px 0;
+}

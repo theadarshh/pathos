@@ -1,0 +1,64 @@
+.orbit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+.cat-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.cat-btn:hover {
+  border-color: var(--blue2);
+}
+.cat-btn b {
+  display: block;
+  font-size: 14px;
+}
+.cat-btn small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.cat-detail {
+  display: none;
+  padding: 10px 16px 4px;
+}
+.cat-detail.open {
+  display: block;
+}
+.gap-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  font-size: 13.5px;
+  border-bottom: 1px solid var(--border);
+}
+.gap-item:last-child {
+  border: none;
+}
+.state-done {
+  color: var(--ok);
+}
+.state-rec {
+  color: var(--blue2);
+}
+.state-later {
+  color: var(--muted);
+}
+.gap-item.highlighted span:first-child {
+  color: var(--cyan);
+  animation: skillHighlight 1.4s ease-in-out 2;
+}
+@keyframes skillHighlight {
+  0%, 100% { text-shadow: none; }
+  50% { text-shadow: 0 0 10px rgba(34, 211, 238, 0.7); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gap-item.highlighted span:first-child { animation: none; }
+}
