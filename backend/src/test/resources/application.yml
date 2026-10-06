@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/pathos_test}
+    username: ${DB_USERNAME:pathos}
+    password: ${DB_PASSWORD:pathos}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    clean-disabled: false
+
+pathos:
+  jwt:
+    secret: test-only-secret-key-not-used-anywhere-real-32bytes-min
+    expiration-minutes: 60
+
+cors:
+  allowed-origins: http://localhost:5173
