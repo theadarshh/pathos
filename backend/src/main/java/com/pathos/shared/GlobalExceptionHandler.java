@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
  * Centralized error handling. Every branch here returns {@link ApiError} —
@@ -32,6 +33,15 @@ public class GlobalExceptionHandler {
             .toList();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ApiError.of(400, "VALIDATION_FAILED", "Request body failed validation.", details));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        // e.g. a non-UUID path variable on GET /api/skills/{id} -- a
+        // malformed request from the client, not a server failure, so
+        // this must be 400, not fall through to the generic 500 below.
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ApiError.of(400, "VALIDATION_FAILED", "'" + ex.getName() + "' has an invalid value."));
     }
 
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})

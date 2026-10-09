@@ -73,6 +73,16 @@ class KnowledgeApiTest {
     }
 
     @Test
+    void malformedSkillIdReturns400NotAServerError() throws Exception {
+        // Regression check for GlobalExceptionHandler's
+        // MethodArgumentTypeMismatchException handling -- a bad UUID in
+        // the path is a client error, not an internal server error.
+        mockMvc.perform(get("/api/skills/{id}", "not-a-uuid"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
+    }
+
+    @Test
     void careerPathsListHasEightRoles() throws Exception {
         mockMvc.perform(get("/api/career-paths"))
             .andExpect(status().isOk())
