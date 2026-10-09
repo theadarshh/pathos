@@ -2,6 +2,7 @@ package com.pathos.auth;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -42,6 +43,12 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                // Career knowledge (V2.1) is read-only reference data, not
+                // user data -- public so V1's anonymous career-path
+                // browsing keeps working without requiring a session.
+                // Profile endpoints are NOT in this list and remain
+                // authenticated-only, unchanged from V2.0.
+                .requestMatchers(HttpMethod.GET, "/api/skills/**", "/api/skill-categories/**", "/api/career-paths/**").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
