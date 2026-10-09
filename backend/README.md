@@ -1,9 +1,17 @@
-# PathOS backend (V2.0 Foundation)
+# PathOS backend (V2.0 Foundation + V2.1 Career Knowledge)
 
-A Spring Boot **modular monolith** — not microservices — providing exactly
-the persistence and authentication V2.0 needs: user accounts, JWT
-authentication, and profile storage. Organized by Java package
-(`auth`, `profile`, `user`, `shared`, `config`), all in one deployable.
+A Spring Boot **modular monolith** — not microservices — organized by
+Java package (`auth`, `profile`, `user`, `knowledge`, `shared`,
+`config`), all in one deployable.
+
+- **V2.0 Foundation**: user accounts, JWT authentication, profile storage.
+- **V2.1 Career Knowledge**: persistent skills/categories/career
+  roles/requirements/skill-graph/transitions/learning-resources, replacing
+  V1's hardcoded JS data maps. See
+  [`docs/V2.1-KNOWLEDGE-MODEL.md`](docs/V2.1-KNOWLEDGE-MODEL.md) for the
+  full domain model, migrations, API table, and migration strategy.
+  V2.1 is knowledge only — no scoring/matching/AI behavior; that starts
+  at V2.2.
 
 ## Stack
 
@@ -13,14 +21,19 @@ a `TokenService` interface so the concrete JWT implementation can later be
 swapped for sessions or OAuth without touching `AuthService` or
 `ProfileService`.
 
-## Domain scope (V2.0 only)
+## Domain scope
 
-Two entities: `User` (email, BCrypt password hash) and `Profile`
-(`role`, `experience`, `skills`, `goal`, `complete` — the same fields V1's
-profile object had). `Profile.skills` is stored as a JSON-text column via
-a temporary `SkillListConverter` — **this is explicitly not the final
-design**. The normalized, queryable skill-graph model is deferred to
-V2.1/V2.2 and is not implemented here.
+**V2.0**: `User` (email, BCrypt password hash) and `Profile` (`role`,
+`experience`, `skills`, `goal`, `complete` — the same fields V1's profile
+object had). `Profile.skills` is still a JSON-text column via
+`SkillListConverter` — **unchanged by V2.1**. The normalized skill-graph
+model now exists (V2.1, see below) but `Profile` itself hasn't switched
+to it yet; see `docs/V2.1-KNOWLEDGE-MODEL.md`'s migration-strategy
+section for why and when.
+
+**V2.1**: `SkillCategory`, `Skill`, `CareerRole`, `RoleRequirement`,
+`SkillRelationship`, `CareerTransition`, `LearningResource` — all in
+`com.pathos.knowledge`. Read-only reference data, seeded via Flyway only.
 
 ## API
 
@@ -30,7 +43,15 @@ V2.1/V2.2 and is not implemented here.
 | POST   | `/api/auth/login`    | no   | 200, returns `{ token, userId, email }` |
 | GET    | `/api/profile`       | yes  | returns the caller's own profile |
 | PUT    | `/api/profile`       | yes  | updates the caller's own profile |
+| GET    | `/api/skill-categories` | no | all skill categories |
+| GET    | `/api/skills`         | no   | all active skills |
+| GET    | `/api/skills/{id}`    | no   | one skill, 404 `SKILL_NOT_FOUND` if unknown |
+| GET    | `/api/career-paths`   | no   | all active career roles |
+| GET    | `/api/career-paths/{id}` | no | one role, 404 `CAREER_ROLE_NOT_FOUND` if unknown |
+| GET    | `/api/career-paths/{id}/requirements` | no | that role's required/preferred skills |
 
+The V2.1 knowledge endpoints are public by design (no user data, see
+`docs/V2.1-KNOWLEDGE-MODEL.md`) — everything else keeps requiring a JWT.
 Profile endpoints take the user id **only** from the verified JWT subject
 (`SecurityContext` / `Authentication.getName()`) — there is no endpoint
 shape that accepts a client-supplied user/profile id. Errors are a
@@ -69,18 +90,18 @@ password**. Required variables:
 
 Migrations live in `src/main/resources/db/migration/` and run
 automatically on application startup (`spring.flyway.enabled: true`).
-There is no separate CLI step — `./mvnw spring-boot:run` applies them.
+There is no separate CLI step — `mvn spring-boot:run` applies them.
 
 ### 4. Run
 
 ```bash
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
 ### 5. Tests
 
 ```bash
-./mvnw test
+mvn test
 ```
 
 Covers: registration, BCrypt hashing, duplicate-email rejection
@@ -91,6 +112,14 @@ see `src/test/java/com/pathos/auth/` and `.../profile/`.
 `AuthFlowTest`/`ProfileFlowTest` run against a real local `pathos_test`
 database (via Flyway `clean()`+`migrate()` in `@BeforeEach`), not mocks;
 `SecurityComponentsTest` is pure unit tests with no Spring context.
+
+V2.1 adds (`src/test/java/com/pathos/knowledge/`): seed-data verification
+for skills/categories/career-roles/requirements/skill-graph/transitions/
+learning-resources, all six knowledge API endpoints (including the two
+404 cases and a malformed-id 400 case), the profile-skill normalization
+strategy, and a regression test proving the V2.0 profile API still
+accepts arbitrary free-text skills unaffected by V2.1. Same real-Postgres
+pattern as V2.0's tests above — none of it executed in this environment.
 
 ## ⚠️ Known limitation in this development environment
 

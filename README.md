@@ -110,10 +110,18 @@ React/Vite frontend  →  REST API  →  Spring Boot modular monolith  →  Post
 ```
 
 Scope of V2.0 is deliberately narrow: user accounts, JWT authentication,
-and profile persistence — nothing more. The career-matching, AI
-conversation, skill-graph and roadmap-intelligence features described in
-the vision above are **not** part of this phase; they're staged for later
-(V2.1+) and are not implemented yet.
+and profile persistence — nothing more.
+
+**V2.1 (Career Knowledge Model)** — branch `v2-career-knowledge` — turns
+V1's hardcoded `src/data/careerPaths.js` / `src/data/skills.js` into
+persistent, queryable reference data (skills, categories, career roles,
+role requirements, a skill-relationship graph, career transitions,
+learning resources), served through six new public, read-only API
+endpoints. It is knowledge only: no scoring, matching, AI conversation,
+or roadmap intelligence yet — see
+[`backend/docs/V2.1-KNOWLEDGE-MODEL.md`](backend/docs/V2.1-KNOWLEDGE-MODEL.md)
+for the full model and migration strategy. Those remaining features are
+staged for V2.2+ and not implemented yet.
 
 ### How V1 → V2 migration works right now
 
@@ -152,5 +160,5 @@ in this environment).
 ```bash
 cp .env.example .env     # fill in real local values; never commit this file
 cd backend
-./mvnw spring-boot:run   # http://localhost:8080
+mvn spring-boot:run   # http://localhost:8080
 ```
