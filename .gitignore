@@ -4,3 +4,9 @@ dist
 .env.local
 .DS_Store
 *.log
+
+# backend (Java/Maven)
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.hprof

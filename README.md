@@ -91,3 +91,74 @@ The long-term journey is:
                            │
                            ▼
                     AI CAREER AGENT
+```
+
+---
+
+# Current Status
+
+**V1** was a frontend-only prototype: React/Vite, with the profile and all
+scoring logic running client-side and persisted to `localStorage`. V1 is
+preserved exactly as it was, tagged [`v1.0.0`](../../releases/tag/v1.0.0),
+and untouched on `main`.
+
+**V2.0 (Foundation)** — the current branch, `v2-foundation` — turns that
+into a real full-stack app:
+
+```text
+React/Vite frontend  →  REST API  →  Spring Boot modular monolith  →  PostgreSQL
+```
+
+Scope of V2.0 is deliberately narrow: user accounts, JWT authentication,
+and profile persistence — nothing more.
+
+**V2.1 (Career Knowledge Model)** — branch `v2-career-knowledge` — turns
+V1's hardcoded `src/data/careerPaths.js` / `src/data/skills.js` into
+persistent, queryable reference data (skills, categories, career roles,
+role requirements, a skill-relationship graph, career transitions,
+learning resources), served through six new public, read-only API
+endpoints. It is knowledge only: no scoring, matching, AI conversation,
+or roadmap intelligence yet — see
+[`backend/docs/V2.1-KNOWLEDGE-MODEL.md`](backend/docs/V2.1-KNOWLEDGE-MODEL.md)
+for the full model and migration strategy. Those remaining features are
+staged for V2.2+ and not implemented yet.
+
+### How V1 → V2 migration works right now
+
+- The 14 V1 screens/components are untouched — no UI redesign.
+- `src/hooks/useLocalStorage.js` (V1) still exists and is still what backs
+  `src/hooks/useProfileSync.js` (V2) as the **local cache / offline
+  fallback**. localStorage is never silently treated as if it were the
+  backend.
+- When no one is signed in, the app behaves exactly like V1: everything is
+  local-only, and the UI's sync badge reads "Offline (local only)".
+- When signed in (see `src/components/Navigation/Navigation.jsx`'s
+  "Sign in to sync" control in the sidebar), the Spring Boot API becomes
+  the source of truth: on login, the backend's profile replaces whatever
+  was in `localStorage`; every subsequent profile change is pushed to the
+  API, and the UI shows one of four honest states — **Saving…**, **Saved**,
+  **Failed to save**, or **Offline (local only)** — reflecting what the
+  backend actually confirmed, never an assumed success.
+- There is no account migration tool yet: a profile built anonymously in
+  V1/offline mode is not automatically uploaded on sign-up. That's a
+  reasonable V2.1+ enhancement, not part of this foundation.
+
+### Running it locally
+
+**Frontend**
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm test           # 24/24 — V1's scoring-logic tests, unaffected by V2 work
+npm run build
+```
+
+**Backend** — see [`backend/README.md`](backend/README.md) for full setup
+(PostgreSQL, environment variables, Flyway, running, and known limitations
+in this environment).
+
+```bash
+cp .env.example .env     # fill in real local values; never commit this file
+cd backend
+mvn spring-boot:run   # http://localhost:8080
+```

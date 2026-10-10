@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { PATHS } from '../../data/careerPaths.js';
 import { matchScore, matchLabel, pathReasons } from '../../utils/scoring.js';
+import { useCareerKnowledge } from '../../hooks/useCareerKnowledge.js';
 import './universe.css';
 
 export default function CareerUniverse({ profile, paths, selectedPath, onSelectPath, onExplore, onSeeSkillGap }) {
   const [hovered, setHovered] = useState(null);
+  // V2.1: optional, API-sourced role description. Falls back to showing
+  // nothing extra if the backend is unavailable -- see the hook's doc.
+  const { descriptions } = useCareerKnowledge();
   const cx = 450, cy = 260, R = 190;
 
   const nodes = paths.map((p, i) => {
@@ -81,6 +85,9 @@ export default function CareerUniverse({ profile, paths, selectedPath, onSelectP
         <div className="path-detail card">
           <div className="eyebrow">{selectedPath.toUpperCase()}</div>
           <span className="match-badge">{matchLabel(score)} · {score}%</span>
+          {descriptions[selectedPath] && (
+            <p className="path-description">{descriptions[selectedPath]}</p>
+          )}
           <div style={{ marginTop: 14 }}>
             <b style={{ fontSize: 14 }}>Why this path fits</b>
             <ul className="check-list">

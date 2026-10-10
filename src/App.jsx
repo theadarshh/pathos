@@ -13,7 +13,7 @@ import WhatIfSimulator from './components/WhatIfSimulator/WhatIfSimulator.jsx';
 import ProjectBuilder from './components/ProjectBuilder/ProjectBuilder.jsx';
 import CareerCoach from './components/CareerCoach/CareerCoach.jsx';
 import CommandPalette from './components/CommandPalette/CommandPalette.jsx';
-import { loadProfile, saveProfile, clearProfile } from './hooks/useLocalStorage.js';
+import { useProfileSync } from './hooks/useProfileSync.js';
 import { relevantPaths } from './utils/scoring.js';
 import { DEMO_PROFILE } from './data/demoProfile.js';
 
@@ -21,18 +21,23 @@ const SCREENS = { HERO: 'hero', ONBOARDING: 'onboarding', BUILDING: 'building', 
 const EMPTY_PROFILE = { role: null, experience: null, skills: [], goal: null, complete: false };
 
 export default function App() {
-  const stored = loadProfile();
-  const [screen, setScreen] = useState(stored?.complete ? SCREENS.APP : SCREENS.HERO);
-  const [profile, setProfile] = useState(stored || EMPTY_PROFILE);
+  const {
+    profile,
+    setProfile,
+    clear: clearProfile,
+    status: syncStatus,
+    authed,
+    authEmail,
+    register,
+    login,
+    logout,
+  } = useProfileSync(EMPTY_PROFILE);
+  const [screen, setScreen] = useState(profile?.complete ? SCREENS.APP : SCREENS.HERO);
   const [view, setView] = useState('identity');
   const [selectedPath, setSelectedPath] = useState(null);
   const [editing, setEditing] = useState(false);
   const [coachOpen, setCoachOpen] = useState(false);
   const [intelligence, setIntelligence] = useState(null);
-
-  useEffect(() => {
-    saveProfile(profile);
-  }, [profile]);
 
   const startOnboarding = useCallback(() => {
     setEditing(false);
@@ -84,7 +89,18 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <Navigation active={view} onChange={setView} onRestart={restart} onEditProfile={editProfile} />
+      <Navigation
+        active={view}
+        onChange={setView}
+        onRestart={restart}
+        onEditProfile={editProfile}
+        syncStatus={syncStatus}
+        authed={authed}
+        authEmail={authEmail}
+        onLogin={login}
+        onRegister={register}
+        onLogout={logout}
+      />
       <main className="main">
         {view === 'identity' && <CareerIdentity profile={profile} />}
         {view === 'universe' && (
